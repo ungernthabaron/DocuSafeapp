@@ -1,0 +1,131 @@
+{% extends 'base_generic.html' %}
+{% load static %}
+
+{% block styles %}
+    <link rel="stylesheet" href="{% static 'docusafeapp/style.css' %}">
+    <style>
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        .welcome-message {
+            background-color: #007bff;
+            color: #fff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .project-list {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .project-item {
+            border: 1px solid #ddd;
+            margin: 10px 0;
+            padding: 15px;
+            position: relative;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transition: box-shadow 0.3s;
+        }
+
+        .project-item:hover {
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .project-item a {
+            text-decoration: none;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .documentation-list {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 10px;
+        }
+
+        .documentation-item {
+            margin: 5px 0;
+            color: #555;
+        }
+
+        .edit-button,
+        .add-documentation-button,
+        .logout-button,
+        .add-project-link {
+            padding: 10px;
+            margin-top: 10px;
+            display: inline-block;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            color: #fff;
+            transition: background-color 0.3s;
+        }
+
+        .edit-button {
+            background-color: #28a745;
+        }
+
+        .add-documentation-button {
+            background-color: #007bff;
+        }
+
+        .logout-button {
+            background-color: #dc3545;
+        }
+
+        .add-project-link {
+            background-color: #17a2b8;
+        }
+
+        .edit-button:hover,
+        .add-documentation-button:hover,
+        .logout-button:hover,
+        .add-project-link:hover {
+            filter: brightness(90%);
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div class="container">
+        <div class="welcome-message">
+            <h2>Welcome, {{ user.username }}!</h2>
+        </div>
+
+        <ul class="project-list">
+            {% for project in user_projects %}
+                <li class="project-item">
+                    <a href="{% url 'project_detail' project.id %}">{{ project.name }}</a> - {{ project.description }}
+                    <ul class="documentation-list">
+                        {% for documentation in project.documentation_set.all %}
+                            <li class="documentation-item">{{ documentation.title }} - {{ documentation.content }}</li>
+                        {% endfor %}
+                    </ul>
+                    <button class="edit-button">Edit</button>
+                    <form method="post" action="{% url 'add_documentation' project.id %}">
+                        {% csrf_token %}
+                        <button type="submit" class="add-documentation-button">Add Documentation</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+
+        <a href="{% url 'add_project' %}" class="add-project-link">Add Project</a>
+
+        <form method="post" action="{% url 'logout' %}" class="logout-form">
+            {% csrf_token %}
+            <button type="submit" class="logout-button">Logout</button>
+        </form>
+    </div>
+{% endblock %}
